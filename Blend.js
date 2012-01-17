@@ -1,16 +1,39 @@
 Blend = {map : {}, fx : {}};
 // todo hold more info in each cell and pass it to the effect functions ?
-// todo use an iterator-like set of method to allow irregular grid types to be used
-// todo build a binary map to provide an irregular grid type
 // todo specify only 1 dim and compute the 2nd as data.length / dim
 Blend.map.Grid2D = function(w, h, data) {
 	if (w*h != data.length)
 		throw "given dimensions doesn't match member count"
 
-	return {
+	Iterator = function(tree) {
+		return {
+			grid : grid,
+			current : -1,
+
+			hasNext : function() {
+				return this.current < this.grid.data.length-1;
+			},
+			next : function() {
+				this.current++;
+				return {
+					x : this.current%this.grid.width,
+					y : Math.floor(this.current/this.grid.width),
+					data : this.grid.data[this.current],
+					i : this.current
+				};
+			},
+			reset : function() {
+				this.current = 0;
+			}
+		}
+	}
+
+	var grid = {
 		data : data,
 		width : w,
 		height : h,
+		projectedWidth : 1,
+		projectedHeight : 1,
 		addRow : function(row, i) {
 			this.checkRowLength(row);
 			i = ('undefined' == typeof i) ? this.height : Math.max(0, Math.min(i, this.height));
@@ -49,23 +72,68 @@ Blend.map.Grid2D = function(w, h, data) {
 				throw "column length doesn't match row number";
 		},
 
-		get : function(i, j) {
-			return this.data[i*this.width+j];
+		// get : function(i, j) {
+		// 	return this.data[i*this.width+j];
+		// },
+
+		// getAreaDims : function(surfaceWidth, surfaceHeight) {
+		// 	w = surfaceWidth / this.width;
+		// 	h = surfaceHeight / this.height;
+		// 	return [w, h];
+		// },
+
+		project : function(width, height) {
+			this.projectedWidth = width;
+			this.projectedHeight = height;
+			this.areaWidth = this.projectedWidth / this.width;
+			this.areaHeight = this.projectedHeight /this.height;
+			this.wFloat = Math.floor(this.areaWidth) != this.areaWidth;
+			this.hFloat = Math.floor(this.areaHeight) != this.areaHeight;
 		},
 
-		getAreaDims : function(surfaceWidth, surfaceHeight) {
-			w = surfaceWidth / this.width;
-			h = surfaceHeight / this.height;
-			return [w, h];
+		nextArea : function() {
+			node = this.iterator.hasNext() ? this.iterator.next() : false;
+			// console.log(node);
+				// var dims = this.map.getAreaDims(this.img.width, this.img.height),
+				// 	w = dims.shift(),
+				// 	h = dims.shift(),
+				// 	hFloat = Math.floor(h) != h,
+				// 	wFloat = Math.floor(w) != w;
+				// w = Math.floor(w);
+				// h = Math.floor(h);
+				// for (var i=0; i<this.map.height; i++) {
+				// 	for (var j=0; j<this.map.width; j++) {
+				// 		var x = j*w,
+				// 			y = i*h,
+				// 			amount = this.map.get(i, j);
+				// 		if (amount) {
+				// 			var wInc = (wFloat && 1 == this.map.width-j) ? 1 : 0,
+				// 			 	hInc = (hFloat && 1 == this.map.height-i) ? 1 : 0;
+				// 			_fx.call(this, x, y, w+wInc, h+hInc, amount);
+				// 		}
+				// 	}
+				// }
+			var wInc = (this.wFloat && node.i%this.width == this.width-1) ? 1 : 0,
+				hInc = (this.hFloat && Math.floor(node.i/this.height) == this.height-1) ? 1 : 0;
+			area = {
+				x : Math.floor(this.areaWidth * node.x),
+				y : Math.floor(this.areaHeight * node.y),
+				w : Math.floor(this.projectedWidth / this.width)+wInc,
+				h : Math.floor(this.projectedHeight /this.height)+hInc,
+				data : data
+			};
+			return area;
 		},
-		
+
 		toString : function() {
 			repr = [];
 			for (var i=0; i<this.height; i++)
 				repr.push(this.data.slice(i*this.width, (i+1)*this.width).join(' '));
 			return '[' + repr.join('\n ') + ']';
 		}
-	};
+	}
+	grid.iterator = Iterator(grid);
+	return grid;
 }
 
 /**
