@@ -217,6 +217,7 @@ Blend.map.Tree2D = function(data) {
 }
 
 Blend.fx.desaturate = function(ctx, amount) {
+	console.log(amount);
 	var pixels = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
 	for (var i=0; i<pixels.data.length; i+=4) {
 		var avg = (pixels.data[i] + pixels.data[i+1] + pixels.data[i+2]) * 1/3;
@@ -295,40 +296,13 @@ Blend.create = function(img, map) {
 				var tmpImageData = tmpContext.getImageData(0, 0, w, h);
 				this.context.putImageData(tmpImageData, x, y);
 			}
-
-			var dims = this.map.getAreaDims(this.img.width, this.img.height),
-				w = dims.shift(),
-				h = dims.shift(),
-				hFloat = Math.floor(h) != h,
-				wFloat = Math.floor(w) != w;
-			w = Math.floor(w);
-			h = Math.floor(h);
-			for (var i=0; i<this.map.height; i++) {
-				for (var j=0; j<this.map.width; j++) {
-					var x = j*w,
-						y = i*h,
-						amount = this.map.get(i, j);
-					if (amount) {
-						var wInc = (wFloat && 1 == this.map.width-j) ? 1 : 0,
-						 	hInc = (hFloat && 1 == this.map.height-i) ? 1 : 0;
-						_fx.call(this, x, y, w+wInc, h+hInc, amount);
-					}
-				}
+			while (this.map.iterator.hasNext()) {
+				area = this.map.nextArea();
+				// console.log(effect, area);
+				if (area.data)
+					_fx.call(this, area.x, area.y, area.w, area.h, area.data);
 			}
-			// handle the last row of the pixels in case of non-round division
-			// if (Math.floor(h) != h)
-			// 	for (var j=0; j<this.map.width; j++) {
-			// 		var x = j*w; y=this.img.height-1, amount=this.map.get(this.map.height-1, j);
-			// 		if (amount)
-			// 			_fx.call(this, x, y, w, 1, amount);
-			// 	}
-			// // handle the last column of the pixels in case of non-round division
-			// if (Math.floor(w) != w)
-			// 	for (var i=0; i<this.map.height; i++) {
-			// 		var x = this.img.width-1; y=i*h, amount=this.map.get(i, this.map.width-1);
-			// 		if (amount)
-			// 			_fx.call(this, x, y, 1, h, amount);
-			// 	}
+			console.log(this);
 			return this;
 		},
 		update : function() {
