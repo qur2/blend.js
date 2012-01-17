@@ -262,6 +262,7 @@ Blend.create = function(img, map) {
 	canvas.width = img.width;
 	context = canvas.getContext('2d');
 	context.drawImage(img, 0, 0);
+	map.project(img.width, img.height);
 
 	return {
 		img : img,
