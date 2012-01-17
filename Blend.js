@@ -187,22 +187,27 @@ Blend.map.Tree2D = function(data) {
 	}
 
 	var tree = {
-		project : function(width, height) {
-			this.width = width;
-			this.height = height;
-		},
 		dim : treeDim,
 		data : data,
 		leaves : data[data.length-1],
+		projectedWidth : 1,
+		projectedHeight : 1,
+
+		project : function(width, height) {
+			this.projectedWidth = width;
+			this.projectedHeight = height;
+		},
+
 		nextArea : function() {
 			node = this.iterator.hasNext() ? this.iterator.next() : false;
 			var hSplit = Math.ceil(node.y/2), vSplit = Math.floor(node.y/2);
 			// console.log(node, hSplit, vSplit);
 			area = {
-				'x' : ((1-1/Math.pow(2, hSplit-(1-node.x%2)))),
-				'y' : ((1-1/Math.pow(2, vSplit))),
-				'w' : (this.width/Math.pow(2, hSplit)),
-				'h' : (this.height/Math.pow(2, vSplit))
+				x : (this.projectedWidth*(1-1/Math.pow(2, hSplit-(1-node.x%2)))),
+				y : (this.projectedHeight*(1-1/Math.pow(2, vSplit))),
+				w : (this.projectedWidth/Math.pow(2, hSplit)),
+				h : (this.projectedHeight/Math.pow(2, vSplit)),
+				data : node.data
 			};
 			return area;
 		}
