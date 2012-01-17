@@ -68,6 +68,81 @@ Blend.map.Grid2D = function(w, h, data) {
 	};
 }
 
+/**
+ * Binary tree representing a plane split horizontally and vertically.
+ * A node always 0 or 2 children.
+ * Plane rectangles are represented by the leaves.
+ * Internal data are represented by a list of array.
+ */
+Blend.map.Tree2D = function(data) {
+	var treeDim = 2;
+
+	Iterator = function(tree) {
+		return {
+			tree : tree,
+			current : -1,
+
+			hasNext : function() {
+				return this.current < this.tree.leaves.length-1;
+			},
+			/**
+			 * Get the next leaf by iterating over the last data rows.
+			 * If an element is null (i.e. the leaf lies higher in the tree), then
+			 * it goes up in the tree until it finds the ancestor node of the null leaf.
+			 * As every node has exactly 2 leaves (but the leaves themselves), when going up 
+			 * in the tree, we know some consecutive leaves (i.e. right siblings) can be skipped
+			 * as it would lead to the same ancestor.
+			 */
+			next : function() {
+				this.current++;
+				// console.log(this.current);
+				var i = this.tree.data.length-1;
+				var leaf = tree.leaves[this.current];
+				if (typeof leaf == 'undefined') {
+					var j = this.current;
+					for (i=tree.data.length-2; i>=0 && !leaf; --i) {
+						j = Math.floor(j/2);
+						leaf = tree.data[i][j];
+					}
+					// some nodes can be skipped as any node has 0 or 2 children
+					this.current += (tree.data.length-i-2)*2-1;
+					// console.log('up', tree.data.length-i-2, 'right', (tree.data.length-i-2)*2-1, this.current);
+					return {x : this.current-1, y : i+1, data : leaf};
+				}
+				else
+					return {x : this.current, y : i, data : leaf};
+			},
+			reset : function() {
+				this.current = 0;
+			}
+		}
+	}
+
+	var tree = {
+		project : function(width, height) {
+			this.width = width;
+			this.height = height;
+		},
+		dim : treeDim,
+		data : data,
+		leaves : data[data.length-1],
+		nextArea : function() {
+			node = this.iterator.hasNext() ? this.iterator.next() : false;
+			var hSplit = Math.ceil(node.y/2), vSplit = Math.floor(node.y/2);
+			// console.log(node, hSplit, vSplit);
+			area = {
+				'x' : ((1-1/Math.pow(2, hSplit-(1-node.x%2)))),
+				'y' : ((1-1/Math.pow(2, vSplit))),
+				'w' : (this.width/Math.pow(2, hSplit)),
+				'h' : (this.height/Math.pow(2, vSplit))
+			};
+			return area;
+		}
+	}
+	tree.iterator = Iterator(tree);
+	return tree;
+}
+
 Blend.fx.desaturate = function(ctx, amount) {
 	var pixels = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
 	for (var i=0; i<pixels.data.length; i+=4) {
