@@ -85,42 +85,22 @@ Blend.map.Grid2D = function(w, h, data) {
 		project : function(width, height) {
 			this.projectedWidth = width;
 			this.projectedHeight = height;
-			this.areaWidth = this.projectedWidth / this.width;
-			this.areaHeight = this.projectedHeight /this.height;
-			this.wFloat = Math.floor(this.areaWidth) != this.areaWidth;
-			this.hFloat = Math.floor(this.areaHeight) != this.areaHeight;
 		},
 
 		nextArea : function() {
-			node = this.iterator.hasNext() ? this.iterator.next() : false;
-			// console.log(node);
-				// var dims = this.map.getAreaDims(this.img.width, this.img.height),
-				// 	w = dims.shift(),
-				// 	h = dims.shift(),
-				// 	hFloat = Math.floor(h) != h,
-				// 	wFloat = Math.floor(w) != w;
-				// w = Math.floor(w);
-				// h = Math.floor(h);
-				// for (var i=0; i<this.map.height; i++) {
-				// 	for (var j=0; j<this.map.width; j++) {
-				// 		var x = j*w,
-				// 			y = i*h,
-				// 			amount = this.map.get(i, j);
-				// 		if (amount) {
-				// 			var wInc = (wFloat && 1 == this.map.width-j) ? 1 : 0,
-				// 			 	hInc = (hFloat && 1 == this.map.height-i) ? 1 : 0;
-				// 			_fx.call(this, x, y, w+wInc, h+hInc, amount);
-				// 		}
-				// 	}
-				// }
-			var wInc = (this.wFloat && node.i%this.width == this.width-1) ? 1 : 0,
-				hInc = (this.hFloat && Math.floor(node.i/this.height) == this.height-1) ? 1 : 0;
-			area = {
-				x : Math.floor(this.areaWidth * node.x),
-				y : Math.floor(this.areaHeight * node.y),
+			var areaWidth = this.projectedWidth / this.width,
+				areaHeight = this.projectedHeight /this.height;
+			var wFloat = Math.floor(areaWidth) != areaWidth,
+				hFloat = Math.floor(areaHeight) != areaHeight;
+			var node = this.iterator.hasNext() ? this.iterator.next() : false;
+			var wInc = (wFloat && node.i%this.width == this.width-1) ? 1 : 0,
+				hInc = (hFloat && Math.floor(node.i/this.height) == this.height-1) ? 1 : 0;
+			var area = {
+				x : Math.floor(areaWidth * node.x),
+				y : Math.floor(areaHeight * node.y),
 				w : Math.floor(this.projectedWidth / this.width)+wInc,
 				h : Math.floor(this.projectedHeight /this.height)+hInc,
-				data : data
+				data : node.data
 			};
 			return area;
 		},
