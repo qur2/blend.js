@@ -217,7 +217,6 @@ Blend.map.Tree2D = function(data) {
 }
 
 Blend.fx.desaturate = function(ctx, amount) {
-	console.log(amount);
 	var pixels = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
 	for (var i=0; i<pixels.data.length; i+=4) {
 		var avg = (pixels.data[i] + pixels.data[i+1] + pixels.data[i+2]) * 1/3;
@@ -296,13 +295,13 @@ Blend.create = function(img, map) {
 				var tmpImageData = tmpContext.getImageData(0, 0, w, h);
 				this.context.putImageData(tmpImageData, x, y);
 			}
+			this.map.iterator.reset();
 			while (this.map.iterator.hasNext()) {
 				area = this.map.nextArea();
 				// console.log(effect, area);
 				if (area.data)
 					_fx.call(this, area.x, area.y, area.w, area.h, area.data);
 			}
-			console.log(this);
 			return this;
 		},
 		update : function() {
