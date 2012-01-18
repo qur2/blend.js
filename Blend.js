@@ -72,16 +72,6 @@ Blend.map.Grid2D = function(w, h, data) {
 				throw "column length doesn't match row number";
 		},
 
-		// get : function(i, j) {
-		// 	return this.data[i*this.width+j];
-		// },
-
-		// getAreaDims : function(surfaceWidth, surfaceHeight) {
-		// 	w = surfaceWidth / this.width;
-		// 	h = surfaceHeight / this.height;
-		// 	return [w, h];
-		// },
-
 		project : function(width, height) {
 			this.projectedWidth = width;
 			this.projectedHeight = height;
