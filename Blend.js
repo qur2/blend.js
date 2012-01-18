@@ -23,7 +23,7 @@ Blend.map.Grid2D = function(w, h, data) {
 				};
 			},
 			reset : function() {
-				this.current = 0;
+				this.current = -1;
 			}
 		}
 	}
@@ -181,7 +181,7 @@ Blend.map.Tree2D = function(data) {
 					return {x : this.current, y : i, data : leaf};
 			},
 			reset : function() {
-				this.current = 0;
+				this.current = -1;
 			}
 		}
 	}
