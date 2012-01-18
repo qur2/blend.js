@@ -1,0 +1,15 @@
+== Description
+Blend.js is a simple JS library used to apply effects on images.
+It uses a data structure (like matrix, tree, ...) to represent a map on which images are projected.
+By looping over the map areas, effects are applied.
+
+The effects are custom functions that can do anything with a canvas object.
+Blend.js will pass a canvas holding a part of the image in its own 2-dimensional space (e.g. having its upper-left corner at the origin and the same dimensions than the image fragment).
+The second parameter is the data found in the map for each area. It can also be anything. In the examples, it is used as the amount of effect applied (from 0 to 1).
+
+See it working at http://qur2.github.com/Blend.js
+
+== Todo
+* Add image loader in examples to prevent DOM error
+* Handle float values in Tree2D
+* Specify a single dimension and compute the other from data length in Grid2D
