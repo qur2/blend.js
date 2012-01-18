@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<title>Blend.js</title>
+	<link rel="stylesheet" href="reset.css" type="text/css" />
+	<link rel="stylesheet" href="screen.css" type="text/css" />
+	<!--[if lt IE 9]>
+	<script type="text/javascript" src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	<link href='http://fonts.googleapis.com/css?family=Patua+One' rel='stylesheet' type='text/css'>
+	<script type="text/javascript" src="ImagePreloader.js"></script>
+	<script type="text/javascript" src="Blend.js"></script>
+	<script type="text/javascript" src="Blend-example.js"></script>
+</head>
+<body onload="bodyLoadHandler(sources);">
+	<section id="container">
+		<hgroup>
+			<h1>Blend.js</h1>
+			<h2>Write the effect, let Blend.js apply it.</h2>
+		</hgroup>
+		<a class="github" href="https://github.com/qur2/Blend.js">Blend.js on github</a>
+		<section id="content">
+		<p class="warning">Blend.js is a work in progress as it's a tool for me to play with canvas.<br />Currently it's being developed on Firefox and Chrome.</p>
+			
+			<p>How does it work ?</p>
+			<ul>
+				<li>Blend.js creates a grid representing the areas of your image. In each area, you can set the desired amount of effect.</li>
+				<li>You write your blending effects as functions getting an HTML5 context as parameter : you are free to do anything you want!</li>
+				<li>Blend.js applies your effects to the areas you defined and lets you chain them in the order you choose.</li>
+			</ul>
+
+			<div>
+				<h2>Single area & 2 effects</h2>
+			</div>
+
+			<div>
+				<h2>2 areas & 2 effects</h2>
+			</div>
+
+			<div>
+				<h2>Multiple areas and multiple effects</h2>
+			</div>
+
+			<div>
+				<h2>Irregular areas and multiple effects</h2>
+			</div>
+		</section>
+	</section>
+</body>
+</html>
