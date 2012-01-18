@@ -199,16 +199,18 @@ Blend.map.Tree2D = function(data) {
 		},
 
 		nextArea : function() {
-			node = this.iterator.hasNext() ? this.iterator.next() : false;
+			var node = this.iterator.hasNext() ? this.iterator.next() : false;
 			var hSplit = Math.ceil(node.y/2), vSplit = Math.floor(node.y/2);
-			// console.log(node, hSplit, vSplit);
-			area = {
-				x : (this.projectedWidth*(1-1/Math.pow(2, hSplit-(1-node.x%2)))),
-				y : (this.projectedHeight*(1-1/Math.pow(2, vSplit))),
-				w : (this.projectedWidth/Math.pow(2, hSplit)),
-				h : (this.projectedHeight/Math.pow(2, vSplit)),
+			var w = this.projectedWidth/Math.pow(2, vSplit), h = this.projectedHeight/Math.pow(2, hSplit);
+			var area = {
+				// the module adujsts the position if the spitting direction is relevant
+				x : w * (hSplit-1 + ((hSplit==vSplit)?node.x%2:0)),
+				y : h * (node.y-1 + ((hSplit>vSplit)?node.x%2:0)),
+				w : w,
+				h : h,
 				data : node.data
 			};
+			// console.log(hSplit, vSplit, node.x, node.y, area);
 			return area;
 		}
 	}
