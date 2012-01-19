@@ -10,6 +10,6 @@ The second parameter is the data found in the map for each area. It can also be 
 See it working at http://qur2.github.com/Blend.js
 
 == Todo
-* Add image loader in examples to prevent DOM error
 * Handle float values in Tree2D
 * Specify a single dimension and compute the other from data length in Grid2D
+* Write tests
