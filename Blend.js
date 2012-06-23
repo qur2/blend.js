@@ -212,8 +212,8 @@ Blend.fx.invert = function(ctx, amount) {
 };
 Blend.fx.alpha = function(pixels, amount) {
 	for (var i=0; i<pixels.data.length; i+=4)
-		pixels.data[i+3] = (1-amount) * 255;
-	ctx.putImageData(pixels, 0, 0);
+		pixels.data[i+3] = Math.min(pixels.data[i+3], (1-amount) * 255);
+	return pixels;
 };
 Blend.fx.border = function(ctx, amount) {
 	var w = ctx.canvas.width,
@@ -226,13 +226,21 @@ Blend.fx.border = function(ctx, amount) {
 Blend.fx.circleMask = function(ctx, amount) {
 	var w = ctx.canvas.width,
 		h = ctx.canvas.height;
+	// keep the original image with alpha = 0
+	var pixels = ctx.getImageData(0, 0, w, h);
+	Blend.fx.alpha(pixels, 1);
+	var tmpCanvas = Blend.factory.canvas(w, h);
+	var tmpContext = tmpCanvas.getContext('2d');
+	tmpContext.putImageData(pixels, 0, 0);
+	// draw a circle mask
 	ctx.globalCompositeOperation = 'destination-in';
 	ctx.fillStyle = 'rgba(255, 255, 255, 1)';
 	ctx.beginPath();
 	ctx.arc(w/2, h/2, Math.min(w, h)/2, 0, Math.PI*2, true);
 	ctx.fill();
+	// restore transparent pixels around the mask
 	ctx.globalCompositeOperation = 'destination-over';
-	ctx.fillRect(0, 0, w, h);
+	ctx.drawImage(tmpCanvas, 0, 0);
 };
 
 Blend.factory.fx = function(type, effect) {
