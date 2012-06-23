@@ -9,18 +9,28 @@
 	<script type="text/javascript" src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
 	<![endif]-->
 	<link href='http://fonts.googleapis.com/css?family=Patua+One' rel='stylesheet' type='text/css'>
-	<script type="text/javascript" src="ImagePreloader.js"></script>
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.templates/beta1/jquery.tmpl.js"></script>
 	<script type="text/javascript" src="Blend.js"></script>
 	<script type="text/javascript" src="Blend-example.js"></script>
+	<script id="blendTpl" type="text/x-jquery-tmpl">
+	<div>
+		<h2>${title}</h2>
+		<h4>Original and result :</h4>
+		<img class ="original" src="${source}" />
+		<img class="blended" />
+		<h4>Computational steps :</h4>
+	</div>
+	</script>
 </head>
-<body onload="bodyLoadHandler(sources);">
+<body>
 	<section id="container">
 		<hgroup>
 			<h1>Blend.js</h1>
 			<h2>Write the effect, let Blend.js apply it.</h2>
 		</hgroup>
 		<a class="github" href="https://github.com/qur2/Blend.js">Blend.js on github</a>
-		<section id="content">
+		<section id="content" class="cf">
 		<p class="warning">Blend.js is a work in progress as it's a tool for me to play with canvas.<br />Currently it's being developed on Firefox and Chrome.</p>
 			
 			<p>How does it work ?</p>
@@ -29,22 +39,6 @@
 				<li>You write your blending effects as functions getting an HTML5 context as parameter : you are free to do anything you want!</li>
 				<li>Blend.js applies your effects to the areas you defined and lets you chain them in the order you choose.</li>
 			</ul>
-
-			<div>
-				<h2>Single area & 2 effects</h2>
-			</div>
-
-			<div>
-				<h2>2 areas & 2 effects</h2>
-			</div>
-
-			<div>
-				<h2>Multiple areas and multiple effects</h2>
-			</div>
-
-			<div>
-				<h2>Irregular areas and multiple effects</h2>
-			</div>
 		</section>
 	</section>
 </body>

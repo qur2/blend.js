@@ -1,5 +1,9 @@
 body{background-color:#2a2a2a;}
-.clear{clear:both;}
+/* Clearfix for modern browsers */
+.cf:before,.cf:after {content:"";display:table;}
+.cf:after {clear:both;}
+/* Clearfix for IE 6/7 (trigger hasLayout) */
+.cf {*zoom:1;}
 h1,h2,h3,h4{font-family:'Patua One',cursive;clear:both;}
 h5,p,li{font: 400 16px/1.625 "Bookman Old Style","Serifa BT","URW Bookman L","itc bookman",times,serif;color:#333333;}
 ul{padding:0 3em;}
