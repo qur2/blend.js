@@ -1,45 +1,118 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta charset="utf-8" />
-	<title>Blend.js</title>
-	<link rel="stylesheet" href="reset.css" type="text/css" />
-	<link rel="stylesheet" href="screen.css" type="text/css" />
-	<!--[if lt IE 9]>
-	<script type="text/javascript" src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-	<![endif]-->
-	<link href='http://fonts.googleapis.com/css?family=Patua+One' rel='stylesheet' type='text/css'>
-	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-	<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.templates/beta1/jquery.tmpl.js"></script>
-	<script type="text/javascript" src="Blend.js"></script>
-	<script type="text/javascript" src="Blend-example.js"></script>
-	<script id="blendTpl" type="text/x-jquery-tmpl">
-	<div>
-		<h2>${title}</h2>
-		<h4>Original and result :</h4>
-		<img class ="original" src="${source}" />
-		<img class="blended" />
-		<h4>Computational steps :</h4>
-	</div>
-	</script>
+<meta charset="utf-8" />
+<title>Blend.js</title>
+<link rel="stylesheet" href="reset.css" type="text/css" />
+<link rel="stylesheet" href="screen.css" type="text/css" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+<link href='http://fonts.googleapis.com/css?family=Patua+One' rel='stylesheet' type='text/css'>
+<script type="text/javascript" src="https://raw.github.com/unscriptable/curl/master/src/curl.js"></script>
+<script id="blendTpl" type="text/x-jquery-tmpl">
+<div>
+	<h2>${title}</h2>
+	<h4>Original and result :</h4>
+	<img class ="original" src="${source}" />
+	<img class="blended" />
+	<h4>Computational steps :</h4>
+</div>
+</script>
 </head>
+
 <body>
-	<section id="container">
-		<hgroup>
-			<h1>Blend.js</h1>
-			<h2>Write the effect, let Blend.js apply it.</h2>
-		</hgroup>
-		<a class="github" href="https://github.com/qur2/Blend.js">Blend.js on github</a>
-		<section id="content" class="cf">
+<section id="container">
+	<hgroup>
+		<h1>Blend.js</h1>
+		<h2>Write the effect, let Blend.js apply it.</h2>
+	</hgroup>
+	<a class="github" href="https://github.com/qur2/Blend.js">Blend.js on github</a>
+	<section id="content" class="cf">
 		<p class="warning">Blend.js is a work in progress as it's a tool for me to play with canvas.<br />Currently it's being developed on Firefox and Chrome.</p>
-			
-			<p>How does it work ?</p>
-			<ul>
-				<li>Blend.js creates a grid representing the areas of your image. In each area, you can set the desired amount of effect.</li>
-				<li>You write your blending effects as functions getting an HTML5 context as parameter : you are free to do anything you want!</li>
-				<li>Blend.js applies your effects to the areas you defined and lets you chain them in the order you choose.</li>
-			</ul>
-		</section>
+		
+		<p>How does it work ?</p>
+		<ul>
+			<li>Blend.js creates a grid representing the areas of your image. In each area, you can set the desired amount of effect.</li>
+			<li>You write your blending effects as functions getting an HTML5 context as parameter : you are free to do anything you want!</li>
+			<li>Blend.js applies your effects to the areas you defined and lets you chain them in the order you choose.</li>
+		</ul>
 	</section>
+</section>
+<script type="text/javascript">
+// load jquery and jquery template as modules
+define('jquery', [
+	'https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min',
+	'http://ajax.microsoft.com/ajax/jquery.templates/beta1/jquery.tmpl.min'
+], function() {
+	return jQuery;
+});
+
+curl(['Blend', 'jquery']).then(function(Blend, $) {
+	// helper function to insert canvas into the DOM
+	function addCanvasStep(canvas) {
+		$(this.img).parent().append($('<img>').attr('src', canvas.toDataURL("image/png")));
+	}
+	// let overwrite existing FX to insert the canvas into the DOM
+	var desaturate = Blend.factory.fx('pixels', function(pixels, amount) {
+		var canvas = Blend.factory.canvas(pixels.width, pixels.height);
+		var ctx = canvas.getContext('2d');
+		Blend.fx.desaturate(pixels, amount);
+		ctx.putImageData(pixels, 0, 0);
+		addCanvasStep.call(this, ctx.canvas);
+	});
+	var circleMask = Blend.factory.fx('context', function(ctx, data) {
+		Blend.fx.circleMask(ctx, data);
+		addCanvasStep.call(this, ctx.canvas);
+	});
+	var alpha = Blend.factory.fx('pixels', function(pixels, data) {
+		var canvas = Blend.factory.canvas(pixels.width, pixels.height);
+		var ctx = canvas.getContext('2d');
+		Blend.fx.alpha(pixels, data);
+		ctx.putImageData(pixels, 0, 0);
+		addCanvasStep.call(this, ctx.canvas);
+	});
+
+	var blends = [{
+		source: 'qur2.jpg',
+		title: 'Single area & 2 effects',
+		grid: new Blend.map.Grid2D(1, 1, [1/4]),
+		fxQueue: [alpha, circleMask]
+	}, {
+		source: 'qur2.jpg',
+		title: '2 areas & 2 effects',
+		grid: new Blend.map.Grid2D(2, 1, [1/2, 1/2]),
+		fxQueue: [circleMask, alpha]
+	}, {
+		source: 'qur2.jpg',
+		title: 'Multiple areas and multiple effects',
+		grid: new Blend.map.Grid2D(2, 2, [1/4, 3/4, 3/4, 1/4]),
+		fxQueue: [circleMask, desaturate]
+	}];
+
+	$(document).ready(function() {
+		var blendTpl = $('#blendTpl').template(),
+			root = $('ul').parent();
+
+		for (var i=0, bound=blends.length; i<bound; i++) {
+			blendHelper(blends[i]);
+		}
+
+		function blendHelper(blend) {
+			var tpl = $.tmpl(blendTpl, blend).appendTo(root);
+			var img = tpl.find('img:last').attr('src', blend.source);
+			if (blend.fxQueue && blend.fxQueue.length) {
+				img.one('load', function() {
+					var fxQueue = blend.fxQueue,
+						blender = new Blend.blender(img.get(0), blend.grid);
+					for (var j=0, jmax=fxQueue.length; j<jmax; j++)
+						blender.fx(fxQueue[j]);
+					blender.update();
+				});
+			}
+		}
+	});
+});
+</script>
 </body>
 </html>
