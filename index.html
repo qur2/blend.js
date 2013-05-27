@@ -2,116 +2,148 @@
 <html>
 <head>
 <meta charset="utf-8" />
-<title>Blend.js</title>
-<link rel="stylesheet" href="reset.css" type="text/css" />
-<link rel="stylesheet" href="screen.css" type="text/css" />
+<title>blend.js</title>
+<link rel="stylesheet" href="assets/reset.css" type="text/css" />
+<link rel="stylesheet" href="assets/screen.css" type="text/css" />
 <!--[if lt IE 9]>
 <script type="text/javascript" src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
 <![endif]-->
 <link href='http://fonts.googleapis.com/css?family=Patua+One' rel='stylesheet' type='text/css'>
-<script type="text/javascript" src="https://raw.github.com/unscriptable/curl/master/src/curl.js"></script>
-<script id="blendTpl" type="text/x-jquery-tmpl">
-<div>
-	<h2>${title}</h2>
-	<h4>Original and result :</h4>
-	<img class ="original" src="${source}" />
-	<img class="blended" />
-	<h4>Computational steps :</h4>
-</div>
-</script>
 </head>
 
 <body>
 <section id="container">
 	<hgroup>
-		<h1>Blend.js</h1>
-		<h2>Write the effect, let Blend.js apply it.</h2>
+		<h1>blend.js</h1>
+		<h2>Write the effect, let blend.js apply it.</h2>
 	</hgroup>
-	<a class="github" href="https://github.com/qur2/Blend.js">Blend.js on github</a>
+	<a class="github" href="https://github.com/qur2/blend.js">blend.js on github</a>
 	<section id="content" class="cf">
-		<p class="warning">Blend.js is a work in progress as it's a tool for me to play with canvas.<br />Currently it's being developed on Firefox and Chrome.</p>
-		
+		<p class="warning">blend.js relies on HTML5 canvas. Please refer to <a href="http://caniuse.com/canvas">Can I Use</a> to check browser compatibility.</p>
+
 		<p>How does it work ?</p>
 		<ul>
-			<li>Blend.js creates a grid representing the areas of your image. In each area, you can set the desired amount of effect.</li>
-			<li>You write your blending effects as functions getting an HTML5 context as parameter : you are free to do anything you want!</li>
-			<li>Blend.js applies your effects to the areas you defined and lets you chain them in the order you choose.</li>
+			<li>Create a grid to partition your image.</li>
+			<li>Write your blending effects: simple functions receiving any custom params + HTML5 contexts or pixels data</li>
+			<li>blend.js applies your effects to the areas defined by the grid and lets you chain them in the order you choose.</li>
 		</ul>
+
+		<div style="display:none;" id="blend-tpl">
+			<h2></h2>
+			<h4>Original and result :</h4>
+			<img class ="original" src="" />
+			<img class="blended" />
+			<h4>Computational steps :</h4>
+		</div>
 	</section>
 </section>
+
 <script type="text/javascript">
-// load jquery and jquery template as modules
-define('jquery', [
-	'https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min',
-	'http://ajax.microsoft.com/ajax/jquery.templates/beta1/jquery.tmpl.min'
-], function() {
-	return jQuery;
+// You should definitely use a proper AMD loader :)
+window.define = function (deps, fn) {
+	window.blend = fn();
+};
+</script>
+<script src="lib/blend.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+
+<script type="text/javascript">
+var blendTpl = function(title, source) {
+	var dom = $('#blend-tpl').clone().show();
+	dom.children('h2').text(title);
+	dom.children('img').attr('src', source);
+	return dom;
+};
+
+// helper function to insert canvas into the DOM
+function addCanvasStep(imgPart) {
+	var canvas;
+	if (imgPart instanceof CanvasRenderingContext2D) {
+		canvas = imgPart.canvas;
+	} else {
+		canvas = document.createElement('canvas');
+		canvas.width = imgPart.width;
+		canvas.height = imgPart.height;
+		var ctx = canvas.getContext('2d');
+		ctx.putImageData(imgPart, 0, 0);
+	}
+	$(this.img).parent().append($('<img>').attr('src', canvas.toDataURL("image/png")));
+}
+
+// let overwrite existing FX to insert the canvas into the DOM
+var desaturate = blend.pfx(function(amount, px) {
+	blend.fx.desaturate(amount, px);
+	addCanvasStep.call(this, px);
+});
+var neutralize = blend.pfx(function(amount, px) {
+	blend.fx.neutralize(amount, px);
+	addCanvasStep.call(this, px);
+});
+var vignette = blend.cfx(function(i, o, ctx) {
+	blend.fx.vignette(i, o, ctx);
+	addCanvasStep.call(this, ctx);
+});
+var contrast = blend.pfx(function(amount, ctx) {
+	blend.fx.contrast(amount, ctx);
+	addCanvasStep.call(this, ctx);
 });
 
-curl(['Blend', 'jquery']).then(function(Blend, $) {
-	// helper function to insert canvas into the DOM
-	function addCanvasStep(canvas) {
-		$(this.img).parent().append($('<img>').attr('src', canvas.toDataURL("image/png")));
+var blends = [{
+	source: 'assets/qur2.jpg',
+	title: 'Single area & 2 effects',
+	grid: blend.grid(1, 1),
+	fxQueue: [
+		[vignette, [60, 140]],
+		[desaturate, .8]
+	]
+}, {
+	source: 'assets/qur2.jpg',
+	title: '2 areas & 2 effects (second is partial)',
+	grid: blend.grid(2, 1),
+	fxQueue: [
+		[vignette, [10, 90]],
+		[desaturate, .9, null]
+	]
+}, {
+	source: 'assets/gradient-ddd-333.png',
+	title: '2 areas and 1 (slightly more) complex pixel effect',
+	grid: blend.grid(2, 2),
+	fxQueue: [
+		[contrast, 1, 1, .5, 0]
+	]
+}];
+
+$(document).ready(function() {
+	var root = $('ul').parent();
+
+	var tpl = blendTpl('Dynamic areas & multiple effects', 'assets/qur2.jpg').appendTo(root);
+	var img = tpl.find('img:last').attr('src', 'assets/qur2.jpg');
+	img.one('load', function() {
+		var blender = blend.blend(img.get(0));
+		blender.fx(vignette, [50, 120]);
+		blender.map.addRow(2).addCol(2);
+		blender.fx(vignette, [10, 50]);
+		blender.update();
+	});
+
+	for (var i=0, imax=blends.length; i<imax; i++) {
+		blendHelper(blends[i]);
 	}
-	// let overwrite existing FX to insert the canvas into the DOM
-	var desaturate = Blend.factory.fx('pixels', function(pixels, amount) {
-		var canvas = Blend.factory.canvas(pixels.width, pixels.height);
-		var ctx = canvas.getContext('2d');
-		Blend.fx.desaturate(pixels, amount);
-		ctx.putImageData(pixels, 0, 0);
-		addCanvasStep.call(this, ctx.canvas);
-	});
-	var circleMask = Blend.factory.fx('context', function(ctx, data) {
-		Blend.fx.circleMask(ctx, data);
-		addCanvasStep.call(this, ctx.canvas);
-	});
-	var alpha = Blend.factory.fx('pixels', function(pixels, data) {
-		var canvas = Blend.factory.canvas(pixels.width, pixels.height);
-		var ctx = canvas.getContext('2d');
-		Blend.fx.alpha(pixels, data);
-		ctx.putImageData(pixels, 0, 0);
-		addCanvasStep.call(this, ctx.canvas);
-	});
-
-	var blends = [{
-		source: 'qur2.jpg',
-		title: 'Single area & 2 effects',
-		grid: new Blend.map.Grid2D(1, 1, [1/4]),
-		fxQueue: [alpha, circleMask]
-	}, {
-		source: 'qur2.jpg',
-		title: '2 areas & 2 effects',
-		grid: new Blend.map.Grid2D(2, 1, [1/2, 1/2]),
-		fxQueue: [circleMask, alpha]
-	}, {
-		source: 'qur2.jpg',
-		title: 'Multiple areas and multiple effects',
-		grid: new Blend.map.Grid2D(2, 2, [1/4, 3/4, 3/4, 1/4]),
-		fxQueue: [circleMask, desaturate]
-	}];
-
-	$(document).ready(function() {
-		var blendTpl = $('#blendTpl').template(),
-			root = $('ul').parent();
-
-		for (var i=0, bound=blends.length; i<bound; i++) {
-			blendHelper(blends[i]);
+	function blendHelper(conf) {
+		var tpl = blendTpl(conf.title, conf.source).appendTo(root);
+		var img = tpl.find('img:last').attr('src', conf.source);
+		if (conf.fxQueue && conf.fxQueue.length) {
+			img.one('load', function() {
+				var fxQueue = conf.fxQueue,
+					blender = blend.blend(img.get(0), conf.grid);
+				for (var j=0, jmax=fxQueue.length; j<jmax; j++) {
+					fx = fxQueue[j]
+					blender.fx.apply(blender, fx);
+				}
+				blender.update();
+			});
 		}
-
-		function blendHelper(blend) {
-			var tpl = $.tmpl(blendTpl, blend).appendTo(root);
-			var img = tpl.find('img:last').attr('src', blend.source);
-			if (blend.fxQueue && blend.fxQueue.length) {
-				img.one('load', function() {
-					var fxQueue = blend.fxQueue,
-						blender = new Blend.blender(img.get(0), blend.grid);
-					for (var j=0, jmax=fxQueue.length; j<jmax; j++)
-						blender.fx(fxQueue[j]);
-					blender.update();
-				});
-			}
-		}
-	});
+	}
 });
 </script>
 </body>

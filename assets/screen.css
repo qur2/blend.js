@@ -10,8 +10,8 @@ ul{padding:0 3em;}
 li{list-style-type:disc;margin:.5em 0;}
 a{color:#4868aa;}a:hover{color:#6888ca;}
 #container{width:920px;margin:0 auto;color:#443322;background-color:#fff;border-width:0 0 0 0;border-color:#999;border-style:solid;box-shadow:2px 4px 20px #000000;-moz-box-shadow:2px 4px 20px #000000;-webkit-box-shadow:2px 4px 20px #000000;-o-box-shadow:2px 4px 20px #000000;}
-#container img,#container canvas{display: block;border:1px solid #dedede;padding:1em;margin:1em;float:left;}
-#container canvas{background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAJklEQVQYlWNgYGD4z4AfEJInTjVOU/Aajy5JmltwmUaZKeimwQEAJYsJ9+FVkUMAAAAASUVORK5CYII=) repeat;}
+#container img{display: block;border:1px solid #dedede;padding:1em;margin:1em;float:left;}
+#container img:not([class]){background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAJklEQVQYlWNgYGD4z4AfEJInTjVOU/Aajy5JmltwmUaZKeimwQEAJYsJ9+FVkUMAAAAASUVORK5CYII=) repeat;}
 #container hgroup{clear:both;padding:2em 0 1em;margin:0 3em;}
 #container hgroup h1{font-size:48px;color:#375AD5;padding:0;}
 #container hgroup h2{font-size:large;}

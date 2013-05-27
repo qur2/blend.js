@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Blend.js</title>
+<link rel="stylesheet" href="vendor/mocha.css" type="text/css" />
+<!--[if lt IE 9]>
+<script type="text/javascript" src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+<link href='http://fonts.googleapis.com/css?family=Patua+One' rel='stylesheet' type='text/css'>
+</head>
+
+<body>
+<div id="mocha"></div>
+
+<script type="text/javascript">
+// You should definitely use a proper AMD loader :)
+window.define = function (deps, fn) {
+	window.blend = fn();
+}
+</script>
+<script src="lib/blend.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+
+<script src="vendor/mocha.js"></script>
+<script src="vendor/chai.js"></script>
+<script src="vendor/sinon.js"></script>
+<script>
+mocha.setup('bdd')
+// mocha.ui('bdd');
+// mocha.reporter('html');
+var expect = chai.expect;
+</script>
+<script src="test/blend.js"></script>
+<script>
+window.onload = function() {
+	mocha.checkLeaks();
+	mocha.globals(['jQuery']);
+	mocha.run();
+}
+</script>
+
+</body>
+</html>
