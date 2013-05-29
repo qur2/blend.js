@@ -1,10 +1,12 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <title>blend.js</title>
-<link rel="stylesheet" href="assets/reset.css" type="text/css" />
-<link rel="stylesheet" href="assets/screen.css" type="text/css" />
+<link rel="stylesheet" href="assets/bootstrap.css" type="text/css" />
+<link rel="stylesheet" href="assets/theme.css" type="text/css" />
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+<script type="text/javascript" src="assets/bootstrap.js"></script>
 <!--[if lt IE 9]>
 <script type="text/javascript" src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
 <![endif]-->
@@ -12,31 +14,48 @@
 </head>
 
 <body>
-<section id="container">
-	<hgroup>
+<div class="container">
+	<div class="hero-unit">
 		<h1>blend.js</h1>
-		<h2>Write the effect, let blend.js apply it.</h2>
-	</hgroup>
-	<a class="github" href="https://github.com/qur2/blend.js">blend.js on github</a>
-	<section id="content" class="cf">
-		<p class="warning">blend.js relies on HTML5 canvas. Please refer to <a href="http://caniuse.com/canvas">Can I Use</a> to check browser compatibility.</p>
+		<p>The HTML5 canvas manipulation tool.</p>
+		<p>
+			<a class="btn btn-primary btn-large" href="https://github.com/qur2/blend.js">
+				blend.js on github
+			</a>
+		</p>
+	</div>
 
-		<p>How does it work ?</p>
-		<ul>
-			<li>Create a grid to partition your image.</li>
-			<li>Write your blending effects: simple functions receiving any custom params + HTML5 contexts or pixels data</li>
-			<li>blend.js applies your effects to the areas defined by the grid and lets you chain them in the order you choose.</li>
-		</ul>
-
-		<div style="display:none;" id="blend-tpl">
-			<h2></h2>
-			<h4>Original and result :</h4>
-			<img class ="original" src="" />
-			<img class="blended" />
-			<h4>Computational steps :</h4>
+	<div class="row">
+		<div class="span4">
+			<h2>1. The grid</h2>
+			<p>Choose an image and create a grid to <b>partition</b> it. You can specify as many columns and rows as you want. Just make sure that each area gets at least a few pixels.</p>
 		</div>
-	</section>
-</section>
+		<div class="span4">
+			<h2>2. The FX</h2>
+			<p>Create your blending effects. A blending effects is a <b>custom function</b> that receives custom parameters + an HTML5 context or some pixels data.</p>
+		</div>
+		<div class="span4">
+			<h2>3. The blending</h2>
+			<p>Apply your blending effects to the grid. Blend.js iterates over the grid for you and <b>apply your FX on each area</b>. Just give it come functions and chain them in the order you want.</p>
+		</div>
+	</div>
+
+	<div class="alert">
+		<strong>Warning!</strong> blend.js relies on HTML5 canvas. Please refer to <a href="http://caniuse.com/canvas">Can I Use</a> to check browser compatibility.
+	</div>
+
+	<hr />
+
+	<div id="demo">
+		<div style="display:none;" id="blend-tpl" class="clearfix">
+			<h2></h2>
+			<h4 class="rot270 rot"><span>Original</span></h4>
+			<img class="original" src="" />
+			<img class="blended" />
+			<h4 class="rot90 rot"><span>Blend</span></h4>
+		</div>
+	</div>
+</div>
 
 <script type="text/javascript">
 // You should definitely use a proper AMD loader :)
@@ -45,11 +64,10 @@ window.define = function (deps, fn) {
 };
 </script>
 <script src="lib/blend.js"></script>
-<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
 
 <script type="text/javascript">
 var blendTpl = function(title, source) {
-	var dom = $('#blend-tpl').clone().show();
+	var dom = $('#blend-tpl').clone().removeAttr("id").show();
 	dom.children('h2').text(title);
 	dom.children('img').attr('src', source);
 	return dom;
@@ -67,7 +85,7 @@ function addCanvasStep(imgPart) {
 		var ctx = canvas.getContext('2d');
 		ctx.putImageData(imgPart, 0, 0);
 	}
-	$(this.img).parent().append($('<img>').attr('src', canvas.toDataURL("image/png")));
+	$(this.img).prev('.fx').append($('<img>').attr('src', canvas.toDataURL("image/png")));
 }
 
 // let overwrite existing FX to insert the canvas into the DOM
@@ -91,7 +109,7 @@ var contrast = blend.pfx(function(amount, ctx) {
 var blends = [{
 	source: 'assets/qur2.jpg',
 	title: 'Single area & 2 effects',
-	grid: blend.grid(1, 1),
+	grid: [blend.grid(1, 1)],
 	fxQueue: [
 		[vignette, [60, 140]],
 		[desaturate, .8]
@@ -99,46 +117,50 @@ var blends = [{
 }, {
 	source: 'assets/qur2.jpg',
 	title: '2 areas & 2 effects (second is partial)',
-	grid: blend.grid(2, 1),
+	grid: [blend.grid(2, 1)],
 	fxQueue: [
 		[vignette, [10, 90]],
 		[desaturate, .9, null]
 	]
 }, {
 	source: 'assets/gradient-ddd-333.png',
-	title: '2 areas and 1 (slightly more) complex pixel effect',
-	grid: blend.grid(2, 2),
+	title: '4 areas, 1 (slightly more) complex pixel effect & variable params',
+	grid: [blend.grid(2, 2)],
 	fxQueue: [
 		[contrast, 1, 1, .5, 0]
+	]
+}, {
+	source: 'assets/qur2.jpg',
+	title: 'Dynamic areas & multiple effects',
+	grid: [
+		blend.grid(3, 3),
+		blend.grid(1, 1)
+	],
+	fxQueue: [
+		[vignette, [10, 50]],
+		[vignette, [50, 120]]
 	]
 }];
 
 $(document).ready(function() {
-	var root = $('ul').parent();
-
-	var tpl = blendTpl('Dynamic areas & multiple effects', 'assets/qur2.jpg').appendTo(root);
-	var img = tpl.find('img:last').attr('src', 'assets/qur2.jpg');
-	img.one('load', function() {
-		var blender = blend.blend(img.get(0));
-		blender.fx(vignette, [50, 120]);
-		blender.map.addRow(2).addCol(2);
-		blender.fx(vignette, [10, 50]);
-		blender.update();
-	});
+	var root = $('#demo');
 
 	for (var i=0, imax=blends.length; i<imax; i++) {
 		blendHelper(blends[i]);
 	}
 	function blendHelper(conf) {
-		var tpl = blendTpl(conf.title, conf.source).appendTo(root);
-		var img = tpl.find('img:last').attr('src', conf.source);
+		var tpl = blendTpl(conf.title, conf.source).appendTo(root).after('<hr/>');
+		var img = $('img.blended', tpl).attr('src', conf.source);
 		if (conf.fxQueue && conf.fxQueue.length) {
 			img.one('load', function() {
 				var fxQueue = conf.fxQueue,
-					blender = blend.blend(img.get(0), conf.grid);
+					blender = blend.blend(img.get(0), conf.grid.shift());
 				for (var j=0, jmax=fxQueue.length; j<jmax; j++) {
-					fx = fxQueue[j]
+					// create a div to contain computation steps
+					$('<div class="fx">').insertBefore(img).addClass('fx-'+j);
+					fx = fxQueue[j];
 					blender.fx.apply(blender, fx);
+					if (conf.grid.length) blender.setMap(conf.grid.shift());
 				}
 				blender.update();
 			});

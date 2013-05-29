@@ -1,0 +1,53 @@
+h1, h2, h3, h4 {
+	font-family: 'Patua One',cursive;
+}
+
+.hero-unit {
+	margin-top: 1em;
+}
+
+img.blended, img.original {
+	border: 1px solid #3e3e3e;
+	padding: 15px;
+	margin: 15px;
+	float: left;
+}
+.fx {
+	width: 180px;
+	height: 180px;
+	float: left;
+	padding: 15px;
+	margin: 15px;
+}
+.fx img {
+	float:left;
+	border: 1px solid orange;
+	margin: -1px;
+}
+.rot {
+	float: left;
+	height: 178px;
+	width: 27px;
+	line-height: 4;
+	margin: 15px 0;
+	padding: 0;
+}
+.rot span {
+	white-space: nowrap;
+	display: block;
+	width: 27px;
+	height: 27px;
+}
+.rot270 span {
+	direction: rtl;
+	-webkit-transform: rotate(270deg);
+	-moz-transform: rotate(270deg);
+	-o-transform: rotate(270deg);
+	writing-mode: tb-lr;
+}
+.rot90 span {
+	-webkit-transform: rotate(90deg);
+	-moz-transform: rotate(90deg);
+	-o-transform: rotate(90deg);
+	writing-mode: tb-rl;
+}
