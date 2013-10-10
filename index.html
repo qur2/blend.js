@@ -101,9 +101,17 @@ var vignette = blend.cfx(function(i, o, ctx) {
 	blend.fx.vignette(i, o, ctx);
 	addCanvasStep.call(this, ctx);
 });
-var contrast = blend.pfx(function(amount, ctx) {
-	blend.fx.contrast(amount, ctx);
+var contrast = blend.pfx(function(amount, px) {
+	blend.fx.contrast(amount, px);
+	addCanvasStep.call(this, px);
+});
+var rot = blend.cfx(function(a, ctx) {
+	blend.fx.rot(a, ctx);
 	addCanvasStep.call(this, ctx);
+});
+var randtint = blend.pfx(function(amount, px) {
+	blend.fx.randtint(amount, px);
+	addCanvasStep.call(this, px);
 });
 
 var blends = [{
@@ -140,7 +148,26 @@ var blends = [{
 		[vignette, [10, 50]],
 		[vignette, [50, 120]]
 	]
+}, {
+	source: 'assets/qur2.jpg',
+	title: '9 areas, single effect',
+	grid: [blend.grid(3, 3)],
+	fxQueue: [
+		[rot, Math.PI],
+		[rot, Math.PI]
+	]
 }];
+var randtintparams = []; for (var i=0; i<169; i++) {
+	randtintparams.push(Math.abs(i-50)/100);
+}
+blends.push({
+	source: 'assets/qur2.jpg',
+	title: '169 areas, single effect',
+	grid: [blend.grid(13, 13)],
+	fxQueue: [
+		[randtint].concat(randtintparams)
+	]
+});
 
 $(document).ready(function() {
 	var root = $('#demo');
