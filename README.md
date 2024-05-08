@@ -71,11 +71,11 @@ The library provides some basic effects, under the `fx` namespace. You can refer
 
 ## Any test?
 Sure, for the main part (the blender and the grid). The effects are not tested yet.
-You can see existing tests at http://qur2.github.com/blend.js/test.html
+You can see existing tests at https://qur2.github.io/blend.js/test.html
 
 
 ## Demo
-See it working at http://qur2.github.com/blend.js
+See it working at https://qur2.github.io/blend.js
 
 
 ## License
